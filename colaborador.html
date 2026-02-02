@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Férias - Colaborador</title>
+
+  <style>
+    :root{
+      --primary:#000;
+      --border:#333;
+      --vacation:#00e676;
+
+      --sat-bg:#eef6ff;
+      --sat-fg:#1f4b7a;
+      --sun-bg:#fff1f2;
+      --sun-fg:#7a1f2a;
+
+      --holiday-bg:#e9ffe8;
+      --holiday-fg:#14532d;
+
+      --municipal-bg:#fff7d6;
+      --municipal-fg:#7a5a00;
+
+      --hover:#f2f2f2;
+    }
+
+    *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    body{ font-family:Arial, sans-serif; margin:0; padding:0; background:#f0f0f0; }
+
+    .page{
+      width:210mm; min-height:297mm; padding:10mm; margin:10mm auto;
+      background:#fff; box-shadow:0 0 10px rgba(0,0,0,0.1);
+      position:relative;
+    }
+    @media print{
+      body{ background:none; }
+      .page{ margin:0; box-shadow:none; width:100%; height:100%; }
+      .no-print{ display:none !important; }
+    }
+
+    h1{ text-align:center; font-size:18px; margin:0 0 10px 0; text-transform:uppercase; }
+
+    .info-table{ width:100%; border-collapse:collapse; margin-bottom:8px; }
+    .info-table td{ padding:5px; border:1px solid var(--border); font-size:12px; }
+    .info-table b{ text-transform:uppercase; }
+
+    .toolbar{
+      display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;
+      border:1px solid #ddd; border-radius:10px; padding:8px; margin-bottom:8px;
+    }
+    .field{ display:flex; flex-direction:column; gap:4px; min-width:240px; }
+    .field label{ font-size:11px; font-weight:700; color:#333; }
+    .field select, .field input{
+      font-size:12px; padding:8px 10px; border:1px solid #bbb; border-radius:8px; outline:none;
+    }
+    .hint{ font-size:10px; color:#666; }
+
+    .legend{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+      font-size:10px; margin:6px 0 10px 0; color:#333;
+    }
+    .legend span{ display:inline-flex; align-items:center; gap:6px; }
+    .swatch{ width:14px; height:10px; border:1px solid #999; border-radius:3px; }
+    .sw-sat{ background:var(--sat-bg); }
+    .sw-sun{ background:var(--sun-bg); }
+    .sw-hol{ background:var(--holiday-bg); }
+    .sw-mun{ background:var(--municipal-bg); }
+    .sw-sel{ background:var(--vacation); }
+
+    .calendar-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:5px; }
+    .month-box{ border:1px solid var(--border); padding:2px; }
+    .month-name{
+      background:#eee; text-align:center; font-weight:800; font-size:11px;
+      padding:2px; border-bottom:1px solid var(--border);
+    }
+    table.month-table{ width:100%; border-collapse:collapse; }
+    table.month-table th{
+      border:0.5px solid #ccc; text-align:center; padding:1px;
+      font-size:9px; background:#fafafa;
+    }
+    table.month-table td{
+      border:0.5px solid #ccc; text-align:center; padding:1px;
+      width:14.28%;
+      height:22px;
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .day-cell{ cursor:pointer; position:relative; user-select:none; }
+    .day-cell:hover{ background:var(--hover); }
+
+    .day-cell.selected{ background:var(--vacation) !important; color:#000; font-weight:900; }
+    .day-cell.selected::after{
+      content:"F";
+      position:absolute;
+      bottom:1px;
+      right:2px;
+      font-size:9px;
+      font-weight:900;
+      color:#000;
+    }
+
+    .day-cell.saturday{ background:var(--sat-bg); color:var(--sat-fg); }
+    .day-cell.sunday{ background:var(--sun-bg); color:var(--sun-fg); }
+
+    .day-cell.holiday{
+      background:var(--holiday-bg) !important;
+      color:var(--holiday-fg);
+      font-weight:900;
+    }
+
+    .day-cell.municipal{
+      background:var(--municipal-bg) !important;
+      color:var(--municipal-fg);
+      font-weight:900;
+    }
+
+    .signatures-container{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px;
+    }
+    .sig-box{
+      border:1px solid var(--border);
+      padding:6px;
+    }
+    .sig-label{
+      font-size:10px;
+      font-weight:800;
+      margin-bottom:6px;
+      display:block;
+    }
+    .canvas-wrap{
+      border:1px dashed #999;
+      background:#fff;
+      height:60px;
+    }
+    canvas{
+      width:100%;
+      height:100%;
+      cursor:crosshair;
+    }
+    .manual-sig-line{
+      margin-top:30px;
+      border-top:1px solid var(--border);
+      font-size:9px;
+      padding-top:4px;
+      text-align:center;
+    }
+
+    .actions{
+      position:fixed;
+      top:20px;
+      right:20px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      z-index:1000;
+    }
+    .btn{
+      padding:10px 16px;
+      background:#2196f3;
+      color:#fff;
+      border:0;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+    .btn:hover{ opacity:.9; }
+    .btnDanger{ background:#f44336; }
+
+    @media print{
+      .actions{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <h1>📋 PLANEAMENTO DE FÉRIAS - 2026</h1>
+
+    <table class="info-table">
+      <tr>
+        <td width="60%"><b>NOME:</b> <input type="text" id="colabName" style="border:0;width:70%;font-size:12px" placeholder="Clique para digitar..."></td>
+        <td width="40%"><b>SECÇÃO:</b> <input type="text" id="colabSection" style="border:0;width:60%;font-size:12px" placeholder="..."></td>
+      </tr>
+    </table>
+
+    <div class="toolbar no-print">
+      <div class="field">
+        <label>Ano</label>
+        <select id="selYear"></select>
+      </div>
+
+      <div class="field">
+        <label>Localidade (feriado municipal)</label>
+        <select id="selCity"></select>
+        <div class="hint" id="cityHint">Escolha o município para assinalar o feriado municipal.</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch sw-sat"></span> Sábado</span>
+      <span><span class="swatch sw-sun"></span> Domingo</span>
+      <span><span class="swatch sw-hol"></span> Feriado nacional</span>
+      <span><span class="swatch sw-mun"></span> Feriado municipal</span>
+      <span><span class="swatch sw-sel"></span> Férias (F)</span>
+    </div>
+
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <div class="signatures-container">
+      <div class="sig-box">
+        <span class="sig-label">✍️ ASSINATURA DIGITAL</span>
+        <div class="canvas-wrap">
+          <canvas id="sigCanvas"></canvas>
+        </div>
+        <button class="btn btnDanger no-print" style="margin-top:6px;width:100%;padding:6px;font-size:11px" onclick="clearCanvas()">🗑️ Limpar</button>
+      </div>
+
+      <div class="sig-box">
+        <span class="sig-label">📝 ASSINATURA MANUAL (APÓS IMPRESSÃO)</span>
+        <div style="height:60px;display:flex;align-items:flex-end;">
+          <div class="manual-sig-line" style="width:100%;">Assinatura do Colaborador</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;text-align:center;font-size:9px;color:#666;border-top:1px solid #eee;padding-top:6px;">
+      Documento gerado em: <span id="genDate"></span>
+    </div>
+  </div>
+
+  <div class="actions no-print">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btnDanger" onclick="clearVacations()">🗑️ Limpar Férias</button>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const LS_VAC="vacations-";
+const LS_NAME="colabName";
+const LS_SEC="colabSection";
+const LS_CITY="colabCity";
+const LS_YEAR="colabYear";
+
+const months=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const daysOfWeek=["D","S","T","Q","Q","S","S"];
+
+const municipalData=[
+{"m":"-- Selecione --","d":""},
+{"m":"Abrantes","d":"06-14"},{"m":"Águeda","d":"05-25"},{"m":"Aguiar da Beira","d":"02-10"},{"m":"Alandroal","d":"04-13"},{"m":"Albergaria-a-Velha","d":"08-17"},{"m":"Albufeira","d":"08-20"},{"m":"Alcácer do Sal","d":"06-24"},{"m":"Alcanena","d":"05-14"},{"m":"Alcobaça","d":"08-20"},{"m":"Alcochete","d":"06-24"},{"m":"Alcoutim","d":"09-11"},{"m":"Alenquer","d":"05-14"},{"m":"Alfândega da Fé","d":"06-29"},{"m":"Alijó","d":"11-11"},{"m":"Aljezur","d":"08-29"},{"m":"Aljustrel","d":"06-13"},{"m":"Almada","d":"06-24"},{"m":"Almeida","d":"07-02"},{"m":"Almeirim","d":"05-14"},{"m":"Almodôvar","d":"06-24"},{"m":"Alpiarça","d":"04-02"},{"m":"Alter do Chão","d":"05-14"},{"m":"Alvaiázere","d":"06-13"},{"m":"Alvito","d":"05-14"},{"m":"Amadora","d":"09-11"},{"m":"Amarante","d":"07-08"},{"m":"Amares","d":"06-13"},{"m":"Anadia","d":"05-14"},{"m":"Angra do Heroísmo","d":"06-24"},{"m":"Ansião","d":"05-14"},{"m":"Arcos de Valdevez","d":"07-11"},{"m":"Arganil","d":"09-07"},{"m":"Armamar","d":"06-24"},{"m":"Arouca","d":"05-02"},{"m":"Arraiolos","d":"05-14"},{"m":"Arronches","d":"06-24"},{"m":"Arruda dos Vinhos","d":"05-14"},{"m":"Aveiro","d":"05-12"},{"m":"Avis","d":"04-06"},{"m":"Azambuja","d":"05-14"},{"m":"Baião","d":"08-24"},{"m":"Barcelos","d":"05-03"},{"m":"Barrancos","d":"08-17"},{"m":"Barreiro","d":"06-28"},{"m":"Batalha","d":"08-14"},{"m":"Beja","d":"05-14"},{"m":"Belmonte","d":"04-22"},{"m":"Benavente","d":"05-14"},{"m":"Bombarral","d":"05-14"},{"m":"Borba","d":"11-23"},{"m":"Boticas","d":"07-25"},{"m":"Braga","d":"06-24"},{"m":"Bragança","d":"08-22"},{"m":"Cabeceiras de Basto","d":"07-25"},{"m":"Cadaval","d":"05-14"},{"m":"Caldas da Rainha","d":"07-01"},{"m":"Caminha","d":"08-20"},{"m":"Campo Maior","d":"09-08"},{"m":"Cantanhede","d":"05-14"},{"m":"Carrazeda de Ansiães","d":"08-15"},{"m":"Carregal do Sal","d":"06-22"},{"m":"Cartaxo","d":"09-08"},{"m":"Cascais","d":"06-13"},{"m":"Castanheira de Pêra","d":"08-24"},{"m":"Castelo Branco","d":"03-19"},{"m":"Castelo de Paiva","d":"07-25"},{"m":"Castelo de Vide","d":"09-08"},{"m":"Castro Daire","d":"07-25"},{"m":"Castro Marim","d":"06-24"},{"m":"Castro Verde","d":"10-04"},{"m":"Celorico da Beira","d":"08-25"},{"m":"Celorico de Basto","d":"06-24"},{"m":"Chamusca","d":"09-08"},{"m":"Chaves","d":"07-08"},{"m":"Cinfães","d":"08-10"},{"m":"Coimbra","d":"07-04"},{"m":"Condeixa-a-Nova","d":"05-14"},{"m":"Constância","d":"06-24"},{"m":"Coruche","d":"10-20"},{"m":"Covilhã","d":"10-20"},{"m":"Crato","d":"06-29"},{"m":"Cuba","d":"11-01"},{"m":"Elvas","d":"09-29"},{"m":"Entroncamento","d":"02-27"},{"m":"Espinho","d":"06-19"},{"m":"Esposende","d":"08-19"},{"m":"Estarreja","d":"06-13"},{"m":"Estremoz","d":"09-08"},{"m":"Évora","d":"06-29"},{"m":"Fafe","d":"07-06"},{"m":"Faro","d":"09-07"},{"m":"Felgueiras","d":"09-29"},{"m":"Ferreira do Alentejo","d":"09-21"},{"m":"Ferreira do Zêzere","d":"06-13"},{"m":"Figueira da Foz","d":"06-24"},{"m":"Figueira de Castelo Rodrigo","d":"07-07"},{"m":"Figueiró dos Vinhos","d":"05-14"},{"m":"Fornos de Algodres","d":"06-24"},{"m":"Freixo de Espada à Cinta","d":"05-01"},{"m":"Fronteira","d":"06-29"},{"m":"Funchal","d":"06-24"},{"m":"Fundão","d":"05-14"},{"m":"Gavião","d":"07-25"},{"m":"Góis","d":"08-24"},{"m":"Golegã","d":"11-11"},{"m":"Gondomar","d":"09-24"},{"m":"Gouveia","d":"07-26"},{"m":"Grândola","d":"05-14"},{"m":"Guarda","d":"11-27"},{"m":"Guimarães","d":"06-24"},{"m":"Horta","d":"06-24"},{"m":"Idanha-a-Nova","d":"05-14"},{"m":"Ílhavo","d":"08-26"},{"m":"Lagos","d":"10-27"},{"m":"Lamego","d":"09-08"},{"m":"Leiria","d":"05-22"},{"m":"Lisboa","d":"06-13"},{"m":"Loulé","d":"05-14"},{"m":"Loures","d":"07-11"},{"m":"Lourinhã","d":"08-25"},{"m":"Lousã","d":"08-02"},{"m":"Lousada","d":"09-24"},{"m":"Mação","d":"05-14"},{"m":"Macedo de Cavaleiros","d":"07-25"},{"m":"Machico","d":"10-09"},{"m":"Mafra","d":"05-14"},{"m":"Maia","d":"06-24"},{"m":"Mangualde","d":"07-25"},{"m":"Manteigas","d":"08-12"},{"m":"Marco de Canaveses","d":"07-25"},{"m":"Marinha Grande","d":"07-18"},{"m":"Marvão","d":"09-08"},{"m":"Matosinhos","d":"06-24"},{"m":"Mealhada","d":"09-21"},{"m":"Meda","d":"08-20"},{"m":"Melgaço","d":"09-08"},{"m":"Mértola","d":"05-24"},{"m":"Mesão Frio","d":"08-24"},{"m":"Mira","d":"09-15"},{"m":"Miranda do Corvo","d":"09-08"},{"m":"Miranda do Douro","d":"07-25"},{"m":"Mirandela","d":"01-25"},{"m":"Mogadouro","d":"09-08"},{"m":"Moimenta da Beira","d":"09-08"},{"m":"Moita","d":"09-04"},{"m":"Monção","d":"06-19"},{"m":"Monchique","d":"10-04"},{"m":"Mondim de Basto","d":"11-11"},{"m":"Monforte","d":"05-14"},{"m":"Montalegre","d":"06-29"},{"m":"Montemor-o-Novo","d":"05-14"},{"m":"Montemor-o-Velho","d":"09-08"},{"m":"Montijo","d":"10-04"},{"m":"Mora","d":"05-14"},{"m":"Mortágua","d":"08-15"},{"m":"Moura","d":"06-24"},{"m":"Mourão","d":"05-14"},{"m":"Murça","d":"10-07"},{"m":"Murtosa","d":"05-14"},{"m":"Nazaré","d":"09-08"},{"m":"Nelas","d":"06-24"},{"m":"Nisa","d":"09-08"},{"m":"Óbidos","d":"05-14"},{"m":"Odemira","d":"09-08"},{"m":"Odivelas","d":"06-19"},{"m":"Oeiras","d":"06-16"},{"m":"Oleiros","d":"05-14"},{"m":"Olhão","d":"06-16"},{"m":"Oliveira de Azeméis","d":"05-14"},{"m":"Oliveira de Frades","d":"05-14"},{"m":"Oliveira do Bairro","d":"05-14"},{"m":"Oliveira do Hospital","d":"06-24"},{"m":"Ourém","d":"05-14"},{"m":"Ourique","d":"07-25"},{"m":"Ovar","d":"07-25"},{"m":"Paços de Ferreira","d":"11-11"},{"m":"Palmela","d":"06-01"},{"m":"Pampilhosa da Serra","d":"05-14"},{"m":"Paredes","d":"06-24"},{"m":"Paredes de Coura","d":"08-24"},{"m":"Pedrógão Grande","d":"08-10"},{"m":"Penacova","d":"05-14"},{"m":"Penafiel","d":"07-25"},{"m":"Penalva do Castelo","d":"08-15"},{"m":"Penamacor","d":"05-14"},{"m":"Penedono","d":"11-11"},{"m":"Penela","d":"08-16"},{"m":"Peniche","d":"05-14"},{"m":"Peso da Régua","d":"06-29"},{"m":"Pinhel","d":"08-25"},{"m":"Pombal","d":"03-11"},{"m":"Ponta Delgada","d":"06-24"},{"m":"Ponte da Barca","d":"08-24"},{"m":"Ponte de Lima","d":"09-27"},{"m":"Ponte de Sor","d":"05-14"},{"m":"Portalegre","d":"05-23"},{"m":"Portel","d":"09-08"},{"m":"Portimão","d":"10-11"},{"m":"Porto","d":"06-24"},{"m":"Porto de Mós","d":"06-13"},{"m":"Póvoa de Lanhoso","d":"08-14"},{"m":"Póvoa de Varzim","d":"06-29"},{"m":"Proença-a-Nova","d":"09-08"},{"m":"Redondo","d":"09-08"},{"m":"Reguengos de Monsaraz","d":"04-25"},{"m":"Resende","d":"04-25"},{"m":"Ribeira de Pena","d":"07-26"},{"m":"Rio Maior","d":"05-14"},{"m":"Sabrosa","d":"09-19"},{"m":"Sabugal","d":"08-20"},{"m":"Salvaterra de Magos","d":"09-08"},{"m":"Santa Comba Dão","d":"08-11"},{"m":"Santarém","d":"03-19"},{"m":"Santiago do Cacém","d":"07-25"},{"m":"Santo Tirso","d":"02-08"},{"m":"São Brás de Alportel","d":"10-01"},{"m":"São João da Madeira","d":"05-08"},{"m":"São João da Pesqueira","d":"06-24"},{"m":"São Pedro do Sul","d":"06-29"},{"m":"Sardoal","d":"05-14"},{"m":"Sátão","d":"06-24"},{"m":"Seia","d":"09-27"},{"m":"Seixal","d":"05-23"},{"m":"Sernancelhe","d":"06-24"},{"m":"Serpa","d":"04-27"},{"m":"Sertã","d":"08-15"},{"m":"Sesimbra","d":"05-05"},{"m":"Setúbal","d":"09-15"},{"m":"Sever do Vouga","d":"05-14"},{"m":"Silves","d":"09-03"},{"m":"Sines","d":"08-15"},{"m":"Sintra","d":"06-29"},{"m":"Sobral de Monte Agraço","d":"05-14"},{"m":"Soure","d":"06-24"},{"m":"Sousel","d":"05-14"},{"m":"Tábua","d":"10-15"},{"m":"Tabuaço","d":"08-15"},{"m":"Tarouca","d":"06-24"},{"m":"Tavira","d":"06-24"},{"m":"Terras de Bouro","d":"09-08"},{"m":"Tomar","d":"03-01"},{"m":"Tondela","d":"06-13"},{"m":"Torre de Moncorvo","d":"05-25"},{"m":"Torres Novas","d":"11-15"},{"m":"Torres Vedras","d":"05-14"},{"m":"Trancoso","d":"06-29"},{"m":"Trofa","d":"05-14"},{"m":"Vagos","d":"05-14"},{"m":"Vale de Cambra","d":"06-24"},{"m":"Valença","d":"06-24"},{"m":"Valongo","d":"07-24"},{"m":"Valpaços","d":"09-08"},{"m":"Vendas Novas","d":"05-14"},{"m":"Viana do Alentejo","d":"01-17"},{"m":"Viana do Castelo","d":"08-20"},{"m":"Vidigueira","d":"09-21"},{"m":"Vieira do Minho","d":"09-21"},{"m":"Vila de Rei","d":"07-25"},{"m":"Vila do Bispo","d":"04-21"},{"m":"Vila do Conde","d":"06-24"},{"m":"Vila Flor","d":"06-24"},{"m":"Vila Franca de Xira","d":"06-21"},{"m":"Vila Nova da Barquinha","d":"05-14"},{"m":"Vila Nova de Cerveira","d":"10-07"},{"m":"Vila Nova de Famalicão","d":"06-13"},{"m":"Vila Nova de Foz Côa","d":"05-14"},{"m":"Vila Nova de Gaia","d":"06-24"},{"m":"Vila Nova de Paiva","d":"05-14"},{"m":"Vila Nova de Poiares","d":"11-11"},{"m":"Vila Pouca de Aguiar","d":"08-24"},{"m":"Vila Real","d":"06-29"},{"m":"Vila Real de Santo António","d":"05-13"},{"m":"Vila Velha de Ródão","d":"05-14"},{"m":"Vila Verde","d":"08-15"},{"m":"Vila Viçosa","d":"08-15"},{"m":"Vimioso","d":"09-08"},{"m":"Vinhais","d":"09-08"},{"m":"Viseu","d":"09-21"},{"m":"Vizela","d":"05-14"},{"m":"Vouzela","d":"08-20"}
+];
+
+let currentYear=2026;
+
+function isoKey(d){
+const y=d.getFullYear();
+const m=String(d.getMonth()+1).padStart(2,'0');
+const day=String(d.getDate()).padStart(2,'0');
+return`${y}-${m}-${day}`;
+}
+
+function easterDate(y){
+const a=y%19;
+const b=Math.floor(y/100);
+const c=y%100;
+const d=Math.floor(b/4);
+const e=b%4;
+const f=Math.floor((b+8)/25);
+const g=Math.floor((b-f+1)/3);
+const h=(19*a+b-d-g+15)%30;
+const i=Math.floor(c/4);
+const k=c%4;
+const l=(32+2*e+2*i-h-k)%7;
+const m=Math.floor((a+11*h+22*l)/451);
+const month=Math.floor((h+l-7*m+114)/31);
+const day=((h+l-7*m+114)%31)+1;
+return new Date(y,month-1,day);
+}
+
+function addDays(date,n){const d=new Date(date);d.setDate(d.getDate()+n);return d;}
+
+function buildNationalHolidays(y){
+const easter=easterDate(y);
+const goodFriday=addDays(easter,-2);
+const corpusChristi=addDays(easter,60);
+
+const fixed=[
+{key:`${y}-01-01`,name:"Ano Novo"},
+{key:`${y}-04-25`,name:"Dia da Liberdade"},
+{key:`${y}-05-01`,name:"Dia do Trabalhador"},
+{key:`${y}-06-10`,name:"Dia de Portugal"},
+{key:`${y}-08-15`,name:"Assunção de Nossa Senhora"},
+{key:`${y}-10-05`,name:"Implantação da República"},
+{key:`${y}-11-01`,name:"Dia de Todos os Santos"},
+{key:`${y}-12-01`,name:"Restauração da Independência"},
+{key:`${y}-12-08`,name:"Imaculada Conceição"},
+{key:`${y}-12-25`,name:"Natal"},
+];
+const movable=[
+{key:isoKey(goodFriday),name:"Sexta-Feira Santa"},
+{key:isoKey(easter),name:"Páscoa"},
+{key:isoKey(corpusChristi),name:"Corpo de Deus"},
+];
+
+const map=new Map();
+[...fixed,...movable].forEach(h=>map.set(h.key,h.name));
+return map;
+}
+
+function saveVacations(){
+const selected=[];
+document.querySelectorAll('.day-cell.selected').forEach(c=>selected.push(c.dataset.date));
+localStorage.setItem(LS_VAC+currentYear,JSON.stringify(selected));
+}
+
+function loadVacations(){
+const data=JSON.parse(localStorage.getItem(LS_VAC+currentYear)||"[]");
+document.querySelectorAll('.day-cell').forEach(c=>{
+if(data.includes(c.dataset.date))c.classList.add('selected');
+});
+}
+
+function clearVacations(){
+if(!confirm("Tem a certeza que deseja limpar TODAS as férias marcadas?")){
+return;
+}
+localStorage.removeItem(LS_VAC+currentYear);
+document.querySelectorAll('.day-cell.selected').forEach(c=>c.classList.remove('selected'));
+}
+
+function initCalendar(){
+const grid=document.getElementById('calendarGrid');
+document.getElementById('genDate').textContent=new Date().toLocaleDateString('pt-PT');
+grid.innerHTML="";
+
+const nationalHolidays=buildNationalHolidays(currentYear);
+const cityIdx=document.getElementById('selCity').selectedIndex;
+const municipal=cityIdx>0?municipalData[cityIdx]:null;
+let municipalDate=null;
+if(municipal&&municipal.d){
+municipalDate=`${currentYear}-${municipal.d}`;
+}
+
+months.forEach((month,mIdx)=>{
+const box=document.createElement('div');
+box.className='month-box';
+
+const name=document.createElement('div');
+name.className='month-name';
+name.textContent=month;
+box.appendChild(name);
+
+const table=document.createElement('table');
+table.className='month-table';
+
+const thead=table.createTHead();
+const hRow=thead.insertRow();
+daysOfWeek.forEach(d=>{
+const th=document.createElement('th');
+th.textContent=d;
+hRow.appendChild(th);
+});
+
+const tbody=table.createTBody();
+const firstDay=new Date(currentYear,mIdx,1).getDay();
+const daysInMonth=new Date(currentYear,mIdx+1,0).getDate();
+
+let date=1;
+for(let i=0;i<6;i++){
+const row=tbody.insertRow();
+for(let j=0;j<7;j++){
+const cell=row.insertCell();
+
+if(i===0&&j<firstDay){
+}else if(date>daysInMonth){
+}else{
+cell.textContent=date;
+cell.className='day-cell';
+
+if(j===6)cell.classList.add('saturday');
+if(j===0)cell.classList.add('sunday');
+
+const d=new Date(currentYear,mIdx,date);
+const key=isoKey(d);
+cell.dataset.date=key;
+
+if(nationalHolidays.has(key)){
+cell.classList.add('holiday');
+cell.title=nationalHolidays.get(key);
+}else if(municipalDate&&key===municipalDate){
+cell.classList.add('municipal');
+cell.title=municipal.m+" — "+municipal.d;
+}
+
+cell.addEventListener('click',()=>{
+const dow=new Date(key).getDay();
+if(dow===0||dow===6){
+alert("⚠️ Não pode marcar férias em fins-de-semana!");
+return;
+}
+
+cell.classList.toggle('selected');
+saveVacations();
+});
+
+date++;
+}
+}
+if(date>daysInMonth)break;
+}
+
+box.appendChild(table);
+grid.appendChild(box);
+});
+
+loadVacations();
+}
+
+function initHeaderPersistence(){
+const n=document.getElementById('colabName');
+const s=document.getElementById('colabSection');
+
+n.value=localStorage.getItem(LS_NAME)||"";
+s.value=localStorage.getItem(LS_SEC)||"";
+
+n.addEventListener('input',()=>localStorage.setItem(LS_NAME,n.value));
+s.addEventListener('input',()=>localStorage.setItem(LS_SEC,s.value));
+}
+
+const canvas=document.getElementById('sigCanvas');
+const ctx=canvas.getContext('2d');
+let drawing=false;
+
+function resizeCanvas(){
+const rect=canvas.parentElement.getBoundingClientRect();
+canvas.width=Math.max(1,Math.floor(rect.width));
+canvas.height=Math.max(1,Math.floor(rect.height));
+
+ctx.lineWidth=2;
+ctx.lineCap='round';
+ctx.strokeStyle='#000';
+}
+
+canvas.addEventListener('mousedown',(e)=>{
+drawing=true;
+ctx.beginPath();
+ctx.moveTo(e.offsetX,e.offsetY);
+});
+canvas.addEventListener('mousemove',(e)=>{
+if(!drawing)return;
+ctx.lineTo(e.offsetX,e.offsetY);
+ctx.stroke();
+});
+window.addEventListener('mouseup',()=>drawing=false);
+
+canvas.addEventListener('touchstart',(e)=>{
+drawing=true;
+const touch=e.touches[0];
+const rect=canvas.getBoundingClientRect();
+ctx.beginPath();
+ctx.moveTo(touch.clientX-rect.left,touch.clientY-rect.top);
+e.preventDefault();
+},{passive:false});
+
+canvas.addEventListener('touchmove',(e)=>{
+if(!drawing)return;
+const touch=e.touches[0];
+const rect=canvas.getBoundingClientRect();
+ctx.lineTo(touch.clientX-rect.left,touch.clientY-rect.top);
+ctx.stroke();
+e.preventDefault();
+},{passive:false});
+
+function clearCanvas(){
+if(confirm("Limpar assinatura?")){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+}
+window.clearCanvas=clearCanvas;
+window.clearVacations=clearVacations;
+
+function carregarDadosURL(){
+const params=new URLSearchParams(window.location.search);
+const dadosParam=params.get('dados');
+
+if(dadosParam){
+try{
+const dados=JSON.parse(decodeURIComponent(dadosParam));
+
+if(dados.nome){
+document.getElementById('colabName').value=dados.nome;
+localStorage.setItem(LS_NAME,dados.nome);
+}
+if(dados.seccao){
+document.getElementById('colabSection').value=dados.seccao;
+localStorage.setItem(LS_SEC,dados.seccao);
+}
+if(dados.ano){
+currentYear=dados.ano;
+document.getElementById('selYear').value=currentYear;
+localStorage.setItem(LS_YEAR,currentYear);
+}
+if(dados.cidade){
+const idx=municipalData.findIndex(x=>x.m.toLowerCase()===dados.cidade.toLowerCase());
+if(idx>0){
+document.getElementById('selCity').selectedIndex=idx;
+localStorage.setItem(LS_CITY,idx);
+}
+}
+if(dados.ferias&&Array.isArray(dados.ferias)){
+localStorage.setItem(LS_VAC+currentYear,JSON.stringify(dados.ferias));
+}
+
+alert(`✅ Dados carregados!\n\n📋 ${dados.nome||'—'}\n• Secção: ${dados.seccao||'—'}\n• Férias: ${dados.ferias?.length||0} dias`);
+}catch(e){
+console.error('Erro ao carregar dados:',e);
+}
+}
+}
+
+const selYear=document.getElementById('selYear');
+for(let y=2024;y<=2035;y++){
+const o=document.createElement('option');
+o.value=y;
+o.textContent=y;
+selYear.appendChild(o);
+}
+selYear.value=localStorage.getItem(LS_YEAR)||currentYear;
+currentYear=Number(selYear.value);
+selYear.onchange=()=>{
+currentYear=Number(selYear.value);
+localStorage.setItem(LS_YEAR,currentYear);
+initCalendar();
+};
+
+const selCity=document.getElementById('selCity');
+municipalData.forEach((x,i)=>{
+const o=document.createElement('option');
+o.value=i;
+o.textContent=x.m;
+selCity.appendChild(o);
+});
+const savedCity=localStorage.getItem(LS_CITY);
+if(savedCity)selCity.selectedIndex=Number(savedCity);
+selCity.onchange=()=>{
+localStorage.setItem(LS_CITY,selCity.selectedIndex);
+const sel=municipalData[selCity.selectedIndex];
+if(sel&&sel.d){
+document.getElementById('cityHint').textContent=`${sel.m} — São João Baptista (${currentYear}-${sel.d})`;
+}else{
+document.getElementById('cityHint').textContent='Escolha o município para assinalar o feriado municipal.';
+}
+initCalendar();
+};
+if(selCity.selectedIndex>0){
+const sel=municipalData[selCity.selectedIndex];
+document.getElementById('cityHint').textContent=`${sel.m} — São João Baptista (${currentYear}-${sel.d})`;
+}
+
+window.onload=()=>{
+carregarDadosURL();
+initHeaderPersistence();
+initCalendar();
+resizeCanvas();
+};
+window.onresize=resizeCanvas;
+</script>
+</body>
+</html>

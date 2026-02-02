@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<title>Planeador Férias 2026</title>
+<style>
+:root{
+--vac:#00e676;--hol:#b2ff59;--bg:#f5f5f5;--card:#fff;
+--accent:#2196f3;--danger:#f44336;--success:#4caf50;--warning:#ff9800;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);padding:16px}
+.wrap{max-width:1600px;margin:0 auto}
+h1{font-size:26px;margin-bottom:20px;color:#1a1a1a}
+.top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid#ddd;border-radius:10px;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.label{font-size:11px;font-weight:700;color:#666;margin-bottom:8px;text-transform:uppercase;display:block}
+input,select{width:100%;padding:10px;border:2px solid#ddd;border-radius:8px;font-size:13px}
+.btn{background:#1976d2;color:#fff;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s}
+.btn:hover{opacity:.9}
+.btnSuccess{background:var(--success)}
+.btnDanger{background:var(--danger)}
+.btnRow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.miniRow{display:flex;gap:8px;align-items:center}
+.tight{flex:0 0 auto}
+.hint{font-size:11px;color:#666;margin-top:6px}
+.monthsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px}
+.monthCard{background:#fff;border:2px solid#ddd;border-radius:10px;padding:12px}
+.monthHead{display:flex;justify-content:space-between;padding-bottom:10px;border-bottom:2px solid#eee;margin-bottom:12px}
+.monthTitle{font-weight:800;font-size:16px}
+.grid{border:2px solid#ddd;border-radius:8px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:700px}
+th,td{border:1px solid#ddd;padding:6px;text-align:center;font-size:11px}
+th{background:#f5f5f5;font-weight:700;position:sticky;top:0;z-index:2}
+.stickyName{position:sticky;left:0;background:#fff;border-right:2px solid#ccc;text-align:left;min-width:160px;padding:10px;z-index:1}
+.nameMain{font-weight:800;font-size:14px;margin-bottom:3px}
+.nameSub{font-size:10px;color:#666}
+.cell{cursor:pointer;min-height:45px;position:relative;transition:all .1s;font-size:10px;line-height:1.2;padding:2px}
+.cell:hover{background:#e3f2fd;transform:scale(1.03)}
+.cell.vac{background:var(--vac);font-weight:700;color:#000}
+.cell.hol{background:var(--hol);font-weight:700;color:#000}
+.cell.conflict{border:3px solid var(--danger)!important;animation:pulse .5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,67,54,.7)}50%{box-shadow:0 0 0 4px rgba(244,67,54,0)}}
+.cell .marker{display:block;font-weight:900;font-size:12px}
+.cell .info{display:block;font-size:8px;color:#333;margin-top:1px}
+.cell .warnIcon{position:absolute;top:2px;right:2px;font-size:18px;animation:shake .5s infinite}
+@keyframes shake{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.weekendCol{background:#fff3e0;color:#e65100}
+.totals{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.totalCard{padding:12px;border-radius:8px;text-align:center}
+.totalCard.red{background:#ffebee;border:2px solid var(--danger)}
+.totalCard.green{background:#e8f5e9;border:2px solid var(--success)}
+.totalCard.blue{background:#e3f2fd;border:2px solid var(--accent)}
+.totalCard.orange{background:#fff3e0;border:2px solid var(--warning)}
+.totalCard.purple{background:#f3e5f5;border:2px solid #9c27b0}
+.totalCard .num{font-size:24px;font-weight:900;margin-bottom:4px}
+.totalCard .lbl{font-size:11px;color:#666;text-transform:uppercase}
+.detailsList{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.detailItem{padding:10px;background:#f9f9f9;border-radius:8px;border-left:4px solid var(--accent);position:relative}
+.detailItem .date{font-weight:700;font-size:13px;margin-bottom:4px}
+.detailItem .type{font-size:11px;color:#666;margin-top:2px}
+.detailItem .delBtn{position:absolute;top:8px;right:8px;background:var(--danger);color:#fff;border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;font-weight:700}
+.detailItem .delBtn:hover{opacity:.8}
+#cellMenu{display:none;position:fixed;background:#fff;border:2px solid var(--accent);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:10000;min-width:260px;padding:6px}
+.menuItem{padding:12px 16px;cursor:pointer;font-size:13px;border-radius:6px;transition:all .15s;font-weight:600}
+.menuItem:hover{background:var(--accent);color:#fff}
+.menuHeader{padding:10px 16px;font-size:12px;font-weight:800;color:var(--accent);border-bottom:2px solid#eee;margin-bottom:6px}
+.summary{display:flex;flex-direction:column;gap:8px}
+.summaryItem{display:flex;justify-content:space-between;padding:10px;background:#f9f9f9;border-radius:6px}
+.summaryItem.over{background:#ffebee;border:2px solid var(--danger)}
+.alert{padding:10px;background:var(--warning);color:#000;border-radius:6px;margin-bottom:10px;font-weight:700;font-size:13px;display:none}
+
+@media print{
+body{padding:0;background:#fff}
+.top,.btnRow,button,.hint,#cellMenu,.detailsList,.card:last-child,.totals,.alert{display:none!important}
+.wrap{max-width:100%;padding:3mm}
+h1{font-size:12px;text-align:center;margin-bottom:4px}
+.monthsGrid{grid-template-columns:repeat(6,1fr)!important;gap:2px!important}
+.monthCard{padding:2px!important;border:1px solid#000!important;page-break-inside:avoid}
+.monthHead{padding-bottom:2px!important;margin-bottom:2px!important}
+.monthTitle{font-size:7px!important}
+table{min-width:auto!important}
+th,td{padding:1px!important;font-size:5px!important}
+.stickyName{min-width:40px!important;padding:2px!important}
+.nameMain{font-size:6px!important;margin-bottom:0!important}
+.nameSub{font-size:5px!important}
+.cell{min-height:auto!important;font-size:6px!important;padding:0!important}
+.cell .marker{font-size:6px!important}
+.cell .info,.cell .warnIcon{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="cellMenu">
+<div id="menuTitle" class="menuHeader">OPÇÕES</div>
+<div class="menuItem" onclick="menuAction('vacation')">📅 Férias</div>
+<div class="menuItem" onclick="menuAction('comment')">💬 Comentário</div>
+<div class="menuItem" onclick="menuAction('early')">🕒 Saída Cedo</div>
+<div class="menuItem" onclick="menuAction('hours')">⏱️ Ponto</div>
+<div class="menuItem" onclick="menuAction('extra')">➕ Horas Extras</div>
+<div class="menuItem" onclick="menuAction('approve')">✅ Aprovar</div>
+<div class="menuItem" onclick="menuAction('reject')">⛔ Rejeitar</div>
+<div class="menuItem" onclick="menuAction('clear')">🗑️ Limpar Dia</div>
+</div>
+
+<div class="wrap">
+<h1>📊 Planeador de Férias 2026 - Gestor</h1>
+
+<div id="conflictAlert" class="alert">⚠️ <span id="conflictMsg"></span></div>
+
+<div class="top">
+<div class="card">
+<label class="label">Ano</label>
+<select id="selYear"></select>
+</div>
+
+<div class="card">
+<label class="label">Secção</label>
+<div class="miniRow">
+<select id="selSection" style="flex:1"></select>
+<button class="btn tight" onclick="editSection()">✎</button>
+<button class="btnDanger tight" onclick="deleteSection()">✕</button>
+</div>
+<div class="miniRow" style="margin-top:10px">
+<input id="inpNewSection" placeholder="Nova secção...">
+<button class="btnSuccess tight" onclick="addSection()">+</button>
+</div>
+</div>
+
+<div class="card">
+<label class="label">Vista</label>
+<select id="selView">
+<option value="team">Equipa</option>
+<option value="individual">Individual</option>
+</select>
+<div id="indWrap" style="margin-top:10px;display:none">
+<select id="selPerson"></select>
+</div>
+</div>
+
+<div class="card">
+<label class="label">Cidade (Feriado Municipal)</label>
+<input id="inpCity" placeholder="Ex: Guimarães..." list="cityList">
+<datalist id="cityList"></datalist>
+<div class="hint" id="cityHint">Digite para procurar</div>
+</div>
+</div>
+
+<div class="card">
+<div style="font-weight:800;font-size:18px;margin-bottom:16px">📅 Mapa de Planeamento</div>
+<div class="monthsGrid" id="monthsGrid"></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-top:20px">
+<div class="card">
+<label class="label">📊 Totais</label>
+<div class="totals">
+<div class="totalCard blue">
+<div class="num" id="totalVac">0</div>
+<div class="lbl">Dias Férias</div>
+</div>
+<div class="totalCard red">
+<div class="num" id="totalEarly">0</div>
+<div class="lbl">Saídas Cedo (h)</div>
+</div>
+<div class="totalCard green">
+<div class="num" id="totalExtra">0</div>
+<div class="lbl">Horas Extras</div>
+</div>
+<div class="totalCard orange">
+<div class="num" id="totalComments">0</div>
+<div class="lbl">Comentários</div>
+</div>
+<div class="totalCard purple">
+<div class="num" id="totalHours">0</div>
+<div class="lbl">Horas Ponto</div>
+</div>
+</div>
+
+<label class="label">📋 Resumo Detalhado</label>
+<div id="detailsSummary" class="detailsList"></div>
+</div>
+
+<div class="card">
+<label class="label">👥 Gestão</label>
+<div class="summary" id="quickSummary"></div>
+<div style="margin-top:16px">
+<div class="miniRow">
+<input id="inpNewName" placeholder="Nome...">
+<button class="btnSuccess tight" onclick="addPerson()">+ Adicionar</button>
+</div>
+<div class="miniRow" style="margin-top:10px">
+<select id="selManage" style="flex:1"></select>
+<button class="btn tight" onclick="editPerson()">✎</button>
+<button class="btnDanger tight" onclick="deletePerson()">✕</button>
+</div>
+</div>
+<div style="margin-top:16px">
+<label class="label">Exportar</label>
+<div class="btnRow">
+<button class="btnSuccess" onclick="window.print()">🖨️ PDF</button>
+<button class="btn" onclick="gerarMapaColaborador()">📥 Mapa</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const KEY="PLAN_V16";
+const mPt=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const dPt=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+const municipalData=[
+{"m":"Abrantes","d":"06-14"},{"m":"Águeda","d":"05-25"},{"m":"Aguiar da Beira","d":"02-10"},{"m":"Alandroal","d":"04-13"},{"m":"Albergaria-a-Velha","d":"08-17"},{"m":"Albufeira","d":"08-20"},{"m":"Alcácer do Sal","d":"06-24"},{"m":"Alcanena","d":"05-14"},{"m":"Alcobaça","d":"08-20"},{"m":"Alcochete","d":"06-24"},{"m":"Alcoutim","d":"09-11"},{"m":"Alenquer","d":"05-14"},{"m":"Alfândega da Fé","d":"06-29"},{"m":"Alijó","d":"11-11"},{"m":"Aljezur","d":"08-29"},{"m":"Aljustrel","d":"06-13"},{"m":"Almada","d":"06-24"},{"m":"Almeida","d":"07-02"},{"m":"Almeirim","d":"05-14"},{"m":"Almodôvar","d":"06-24"},{"m":"Alpiarça","d":"04-02"},{"m":"Alter do Chão","d":"05-14"},{"m":"Alvaiázere","d":"06-13"},{"m":"Alvito","d":"05-14"},{"m":"Amadora","d":"09-11"},{"m":"Amarante","d":"07-08"},{"m":"Amares","d":"06-13"},{"m":"Anadia","d":"05-14"},{"m":"Angra do Heroísmo","d":"06-24"},{"m":"Ansião","d":"05-14"},{"m":"Arcos de Valdevez","d":"07-11"},{"m":"Arganil","d":"09-07"},{"m":"Armamar","d":"06-24"},{"m":"Arouca","d":"05-02"},{"m":"Arraiolos","d":"05-14"},{"m":"Arronches","d":"06-24"},{"m":"Arruda dos Vinhos","d":"05-14"},{"m":"Aveiro","d":"05-12"},{"m":"Avis","d":"04-06"},{"m":"Azambuja","d":"05-14"},{"m":"Baião","d":"08-24"},{"m":"Barcelos","d":"05-03"},{"m":"Barrancos","d":"08-17"},{"m":"Barreiro","d":"06-28"},{"m":"Batalha","d":"08-14"},{"m":"Beja","d":"05-14"},{"m":"Belmonte","d":"04-22"},{"m":"Benavente","d":"05-14"},{"m":"Bombarral","d":"05-14"},{"m":"Borba","d":"11-23"},{"m":"Boticas","d":"07-25"},{"m":"Braga","d":"06-24"},{"m":"Bragança","d":"08-22"},{"m":"Cabeceiras de Basto","d":"07-25"},{"m":"Cadaval","d":"05-14"},{"m":"Caldas da Rainha","d":"07-01"},{"m":"Caminha","d":"08-20"},{"m":"Campo Maior","d":"09-08"},{"m":"Cantanhede","d":"05-14"},{"m":"Carrazeda de Ansiães","d":"08-15"},{"m":"Carregal do Sal","d":"06-22"},{"m":"Cartaxo","d":"09-08"},{"m":"Cascais","d":"06-13"},{"m":"Castanheira de Pêra","d":"08-24"},{"m":"Castelo Branco","d":"03-19"},{"m":"Castelo de Paiva","d":"07-25"},{"m":"Castelo de Vide","d":"09-08"},{"m":"Castro Daire","d":"07-25"},{"m":"Castro Marim","d":"06-24"},{"m":"Castro Verde","d":"10-04"},{"m":"Celorico da Beira","d":"08-25"},{"m":"Celorico de Basto","d":"06-24"},{"m":"Chamusca","d":"09-08"},{"m":"Chaves","d":"07-08"},{"m":"Cinfães","d":"08-10"},{"m":"Coimbra","d":"07-04"},{"m":"Condeixa-a-Nova","d":"05-14"},{"m":"Constância","d":"06-24"},{"m":"Coruche","d":"10-20"},{"m":"Covilhã","d":"10-20"},{"m":"Crato","d":"06-29"},{"m":"Cuba","d":"11-01"},{"m":"Elvas","d":"09-29"},{"m":"Entroncamento","d":"02-27"},{"m":"Espinho","d":"06-19"},{"m":"Esposende","d":"08-19"},{"m":"Estarreja","d":"06-13"},{"m":"Estremoz","d":"09-08"},{"m":"Évora","d":"06-29"},{"m":"Fafe","d":"07-06"},{"m":"Faro","d":"09-07"},{"m":"Felgueiras","d":"09-29"},{"m":"Ferreira do Alentejo","d":"09-21"},{"m":"Ferreira do Zêzere","d":"06-13"},{"m":"Figueira da Foz","d":"06-24"},{"m":"Figueira de Castelo Rodrigo","d":"07-07"},{"m":"Figueiró dos Vinhos","d":"05-14"},{"m":"Fornos de Algodres","d":"06-24"},{"m":"Freixo de Espada à Cinta","d":"05-01"},{"m":"Fronteira","d":"06-29"},{"m":"Funchal","d":"06-24"},{"m":"Fundão","d":"05-14"},{"m":"Gavião","d":"07-25"},{"m":"Góis","d":"08-24"},{"m":"Golegã","d":"11-11"},{"m":"Gondomar","d":"09-24"},{"m":"Gouveia","d":"07-26"},{"m":"Grândola","d":"05-14"},{"m":"Guarda","d":"11-27"},{"m":"Guimarães","d":"06-24"},{"m":"Horta","d":"06-24"},{"m":"Idanha-a-Nova","d":"05-14"},{"m":"Ílhavo","d":"08-26"},{"m":"Lagos","d":"10-27"},{"m":"Lamego","d":"09-08"},{"m":"Leiria","d":"05-22"},{"m":"Lisboa","d":"06-13"},{"m":"Loulé","d":"05-14"},{"m":"Loures","d":"07-11"},{"m":"Lourinhã","d":"08-25"},{"m":"Lousã","d":"08-02"},{"m":"Lousada","d":"09-24"},{"m":"Mação","d":"05-14"},{"m":"Macedo de Cavaleiros","d":"07-25"},{"m":"Machico","d":"10-09"},{"m":"Mafra","d":"05-14"},{"m":"Maia","d":"06-24"},{"m":"Mangualde","d":"07-25"},{"m":"Manteigas","d":"08-12"},{"m":"Marco de Canaveses","d":"07-25"},{"m":"Marinha Grande","d":"07-18"},{"m":"Marvão","d":"09-08"},{"m":"Matosinhos","d":"06-24"},{"m":"Mealhada","d":"09-21"},{"m":"Meda","d":"08-20"},{"m":"Melgaço","d":"09-08"},{"m":"Mértola","d":"05-24"},{"m":"Mesão Frio","d":"08-24"},{"m":"Mira","d":"09-15"},{"m":"Miranda do Corvo","d":"09-08"},{"m":"Miranda do Douro","d":"07-25"},{"m":"Mirandela","d":"01-25"},{"m":"Mogadouro","d":"09-08"},{"m":"Moimenta da Beira","d":"09-08"},{"m":"Moita","d":"09-04"},{"m":"Monção","d":"06-19"},{"m":"Monchique","d":"10-04"},{"m":"Mondim de Basto","d":"11-11"},{"m":"Monforte","d":"05-14"},{"m":"Montalegre","d":"06-29"},{"m":"Montemor-o-Novo","d":"05-14"},{"m":"Montemor-o-Velho","d":"09-08"},{"m":"Montijo","d":"10-04"},{"m":"Mora","d":"05-14"},{"m":"Mortágua","d":"08-15"},{"m":"Moura","d":"06-24"},{"m":"Mourão","d":"05-14"},{"m":"Murça","d":"10-07"},{"m":"Murtosa","d":"05-14"},{"m":"Nazaré","d":"09-08"},{"m":"Nelas","d":"06-24"},{"m":"Nisa","d":"09-08"},{"m":"Óbidos","d":"05-14"},{"m":"Odemira","d":"09-08"},{"m":"Odivelas","d":"06-19"},{"m":"Oeiras","d":"06-16"},{"m":"Oleiros","d":"05-14"},{"m":"Olhão","d":"06-16"},{"m":"Oliveira de Azeméis","d":"05-14"},{"m":"Oliveira de Frades","d":"05-14"},{"m":"Oliveira do Bairro","d":"05-14"},{"m":"Oliveira do Hospital","d":"06-24"},{"m":"Ourém","d":"05-14"},{"m":"Ourique","d":"07-25"},{"m":"Ovar","d":"07-25"},{"m":"Paços de Ferreira","d":"11-11"},{"m":"Palmela","d":"06-01"},{"m":"Pampilhosa da Serra","d":"05-14"},{"m":"Paredes","d":"06-24"},{"m":"Paredes de Coura","d":"08-24"},{"m":"Pedrógão Grande","d":"08-10"},{"m":"Penacova","d":"05-14"},{"m":"Penafiel","d":"07-25"},{"m":"Penalva do Castelo","d":"08-15"},{"m":"Penamacor","d":"05-14"},{"m":"Penedono","d":"11-11"},{"m":"Penela","d":"08-16"},{"m":"Peniche","d":"05-14"},{"m":"Peso da Régua","d":"06-29"},{"m":"Pinhel","d":"08-25"},{"m":"Pombal","d":"03-11"},{"m":"Ponta Delgada","d":"06-24"},{"m":"Ponte da Barca","d":"08-24"},{"m":"Ponte de Lima","d":"09-27"},{"m":"Ponte de Sor","d":"05-14"},{"m":"Portalegre","d":"05-23"},{"m":"Portel","d":"09-08"},{"m":"Portimão","d":"10-11"},{"m":"Porto","d":"06-24"},{"m":"Porto de Mós","d":"06-13"},{"m":"Póvoa de Lanhoso","d":"08-14"},{"m":"Póvoa de Varzim","d":"06-29"},{"m":"Proença-a-Nova","d":"09-08"},{"m":"Redondo","d":"09-08"},{"m":"Reguengos de Monsaraz","d":"04-25"},{"m":"Resende","d":"04-25"},{"m":"Ribeira de Pena","d":"07-26"},{"m":"Rio Maior","d":"05-14"},{"m":"Sabrosa","d":"09-19"},{"m":"Sabugal","d":"08-20"},{"m":"Salvaterra de Magos","d":"09-08"},{"m":"Santa Comba Dão","d":"08-11"},{"m":"Santarém","d":"03-19"},{"m":"Santiago do Cacém","d":"07-25"},{"m":"Santo Tirso","d":"02-08"},{"m":"São Brás de Alportel","d":"10-01"},{"m":"São João da Madeira","d":"05-08"},{"m":"São João da Pesqueira","d":"06-24"},{"m":"São Pedro do Sul","d":"06-29"},{"m":"Sardoal","d":"05-14"},{"m":"Sátão","d":"06-24"},{"m":"Seia","d":"09-27"},{"m":"Seixal","d":"05-23"},{"m":"Sernancelhe","d":"06-24"},{"m":"Serpa","d":"04-27"},{"m":"Sertã","d":"08-15"},{"m":"Sesimbra","d":"05-05"},{"m":"Setúbal","d":"09-15"},{"m":"Sever do Vouga","d":"05-14"},{"m":"Silves","d":"09-03"},{"m":"Sines","d":"08-15"},{"m":"Sintra","d":"06-29"},{"m":"Sobral de Monte Agraço","d":"05-14"},{"m":"Soure","d":"06-24"},{"m":"Sousel","d":"05-14"},{"m":"Tábua","d":"10-15"},{"m":"Tabuaço","d":"08-15"},{"m":"Tarouca","d":"06-24"},{"m":"Tavira","d":"06-24"},{"m":"Terras de Bouro","d":"09-08"},{"m":"Tomar","d":"03-01"},{"m":"Tondela","d":"06-13"},{"m":"Torre de Moncorvo","d":"05-25"},{"m":"Torres Novas","d":"11-15"},{"m":"Torres Vedras","d":"05-14"},{"m":"Trancoso","d":"06-29"},{"m":"Trofa","d":"05-14"},{"m":"Vagos","d":"05-14"},{"m":"Vale de Cambra","d":"06-24"},{"m":"Valença","d":"06-24"},{"m":"Valongo","d":"07-24"},{"m":"Valpaços","d":"09-08"},{"m":"Vendas Novas","d":"05-14"},{"m":"Viana do Alentejo","d":"01-17"},{"m":"Viana do Castelo","d":"08-20"},{"m":"Vidigueira","d":"09-21"},{"m":"Vieira do Minho","d":"09-21"},{"m":"Vila de Rei","d":"07-25"},{"m":"Vila do Bispo","d":"04-21"},{"m":"Vila do Conde","d":"06-24"},{"m":"Vila Flor","d":"06-24"},{"m":"Vila Franca de Xira","d":"06-21"},{"m":"Vila Nova da Barquinha","d":"05-14"},{"m":"Vila Nova de Cerveira","d":"10-07"},{"m":"Vila Nova de Famalicão","d":"06-13"},{"m":"Vila Nova de Foz Côa","d":"05-14"},{"m":"Vila Nova de Gaia","d":"06-24"},{"m":"Vila Nova de Paiva","d":"05-14"},{"m":"Vila Nova de Poiares","d":"11-11"},{"m":"Vila Pouca de Aguiar","d":"08-24"},{"m":"Vila Real","d":"06-29"},{"m":"Vila Real de Santo António","d":"05-13"},{"m":"Vila Velha de Ródão","d":"05-14"},{"m":"Vila Verde","d":"08-15"},{"m":"Vila Viçosa","d":"08-15"},{"m":"Vimioso","d":"09-08"},{"m":"Vinhais","d":"09-08"},{"m":"Viseu","d":"09-21"},{"m":"Vizela","d":"05-14"},{"m":"Vouzela","d":"08-20"}
+];
+
+const mDB={};
+municipalData.forEach(x=>{
+const k=x.m.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+mDB[k]={mmdd:x.d,name:x.m};
+});
+
+let S={
+title:"Planeador 2026",
+year:2026,
+view:"team",
+sections:["Geral"],
+currentSection:"Geral",
+peopleBySection:{},
+personBySection:{},
+cityBySection:{},
+marks:{},
+approvals:{}
+};
+
+function load(){try{const r=localStorage.getItem(KEY);if(r)S={...S,...JSON.parse(r)};}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+function sec(){return S.currentSection||"Geral"}
+function people(){return S.peopleBySection[sec()]||[]}
+function person(){return S.personBySection[sec()]||""}
+function setPerson(p){S.personBySection[sec()]=p}
+function city(){return S.cityBySection[sec()]||""}
+function setCity(c){S.cityBySection[sec()]=c}
+
+function store(y,s,p){
+if(!S.marks[y])S.marks[y]={};
+if(!S.marks[y][s])S.marks[y][s]={};
+if(!S.marks[y][s][p])S.marks[y][s][p]={vacations:[],early:{},comment:{},hours:{},extra:{},approved:null};
+return S.marks[y][s][p];
+}
+function pad(n){return String(n).padStart(2,"0")}
+function iso(y,m,d){return`${y}-${pad(m)}-${pad(d)}`}
+
+function easterSunday(y){
+const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),
+g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,
+m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
+return{y,m:month,d:day};
+}
+function addDays(dt,d){
+const p=dt.split("-").map(Number),date=new Date(p[0],p[1]-1,p[2]);
+date.setDate(date.getDate()+d);
+return iso(date.getFullYear(),date.getMonth()+1,date.getDate());
+}
+function natHols(y){
+const f=[
+{date:`${y}-01-01`,name:"Ano Novo"},
+{date:`${y}-04-25`,name:"Liberdade"},
+{date:`${y}-05-01`,name:"Trabalhador"},
+{date:`${y}-06-10`,name:"Portugal"},
+{date:`${y}-08-15`,name:"Assunção"},
+{date:`${y}-10-05`,name:"República"},
+{date:`${y}-11-01`,name:"Santos"},
+{date:`${y}-12-01`,name:"Restauração"},
+{date:`${y}-12-08`,name:"Conceição"},
+{date:`${y}-12-25`,name:"Natal"}
+];
+const e=easterSunday(y),ei=iso(e.y,e.m,e.d);
+return[...f,
+{date:addDays(ei,-2),name:"Sexta Santa"},
+{date:ei,name:"Páscoa"},
+{date:addDays(ei,60),name:"Corpo Deus"}
+];
+}
+function holMap(y){
+const m=new Map();
+natHols(y).forEach(h=>m.set(h.date,h.name));
+const c=city().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+if(mDB[c])m.set(`${y}-${mDB[c].mmdd}`,mDB[c].name);
+return m;
+}
+
+function bizDays(y,s,p){
+const st=store(y,s,p),hol=holMap(y);
+return st.vacations.filter(d=>{
+const dow=new Date(d).getDay();
+return dow!==0&&dow!==6&&!hol.has(d);
+}).length;
+}
+
+function checkConflicts(){
+const ppl=people(),conflicts=[];
+const dateMap={};
+
+ppl.forEach(p=>{
+const st=store(S.year,sec(),p);
+st.vacations.forEach(d=>{
+if(!dateMap[d])dateMap[d]=[];
+dateMap[d].push(p);
+});
+});
+
+Object.entries(dateMap).forEach(([d,ps])=>{
+if(ps.length>1)conflicts.push({date:d,people:ps});
+});
+
+return conflicts;
+}
+
+function calcTotalHours(){
+const ppl=S.view==="team"?people():[person()].filter(Boolean);
+let total=0;
+
+ppl.forEach(p=>{
+const st=store(S.year,sec(),p);
+const hoursData=st.hours||{};
+Object.entries(hoursData).forEach(([dt,h])=>{
+if(!h||typeof h!=='string')return;
+const parts=h.trim().split('-');
+if(parts.length!==2)return;
+const start=parts[0].trim();
+const end=parts[1].trim();
+const startParts=start.split(':');
+const endParts=end.split(':');
+if(startParts.length===2&&endParts.length===2){
+const sh=parseInt(startParts[0],10)||0;
+const sm=parseInt(startParts[1],10)||0;
+const eh=parseInt(endParts[0],10)||0;
+const em=parseInt(endParts[1],10)||0;
+const startMin=sh*60+sm;
+const endMin=eh*60+em;
+if(endMin>startMin){
+const hours=(endMin-startMin)/60;
+total+=hours;
+}
+}
+});
+});
+
+return total>0?Math.round(total*10)/10:0;
+}
+
+for(let y=2024;y<=2035;y++){
+const o=document.createElement("option");
+o.value=y;o.textContent=y;
+document.getElementById("selYear").appendChild(o);
+}
+
+const cityList=document.getElementById("cityList");
+municipalData.forEach(x=>{
+const o=document.createElement("option");
+o.value=x.m;
+cityList.appendChild(o);
+});
+
+load();
+let aC=null;
+
+function showMenu(e,p,dt){
+e.preventDefault();e.stopPropagation();
+aC={p,dt};
+document.getElementById("menuTitle").textContent=`${p} - ${dt}`;
+const m=document.getElementById("cellMenu");
+m.style.display="block";
+m.style.left=`${Math.min(e.clientX,window.innerWidth-280)}px`;
+m.style.top=`${Math.min(e.clientY,window.innerHeight-400)}px`;
+}
+
+window.onclick=e=>{
+const cm=document.getElementById("cellMenu");
+if(cm.style.display==="block"&&!cm.contains(e.target))cm.style.display="none";
+};
+
+window.menuAction=t=>{
+const{p,dt}=aC;
+const st=store(S.year,sec(),p);
+
+if(t==='clear'){
+if(!confirm(`Limpar TUDO de ${dt}?`))return;
+const idx=st.vacations.indexOf(dt);
+if(idx>-1)st.vacations.splice(idx,1);
+delete st.comment[dt];
+delete st.early[dt];
+delete st.hours[dt];
+delete st.extra[dt];
+}else if(t==='approve'){
+const by=prompt("Aprovado por:","")||"Gestor";
+st.approved={status:"approved",by,at:new Date().toISOString()};
+}else if(t==='reject'){
+const by=prompt("Rejeitado por:","")||"Gestor";
+st.approved={status:"rejected",by,at:new Date().toISOString()};
+}else if(t==='vacation'){
+const dow=new Date(dt).getDay();
+if(dow===0||dow===6){alert("⚠️ Fins-de-semana não contam!");document.getElementById("cellMenu").style.display="none";return;}
+const idx=st.vacations.indexOf(dt);
+if(idx>-1){
+st.vacations.splice(idx,1);
+}else{
+const bz=bizDays(S.year,sec(),p);
+if(bz>=22){
+if(!confirm(`⚠️ ${p} já tem 22 dias marcados!\n\nContinuar assim mesmo?`)){
+document.getElementById("cellMenu").style.display="none";
+return;
+}
+}
+st.vacations.push(dt);
+}
+}else if(t==='comment'){
+const c=prompt("💬 Comentário:",st.comment[dt]||"");
+if(c!==null){if(c.trim())st.comment[dt]=c.trim();else delete st.comment[dt];}
+}else if(t==='early'){
+const h=prompt("🕒 Saída cedo (horas):",st.early[dt]||"");
+if(h!==null){const n=parseFloat(h);if(n>0)st.early[dt]=n;else delete st.early[dt];}
+}else if(t==='hours'){
+const current=st.hours[dt]||"";
+const parts=current.split('-');
+const iT=prompt("⏱️ Entrada:",parts[0]||"09:00")||"09:00";
+const oT=prompt("⏱️ Saída:",parts[1]||"18:00")||"18:00";
+st.hours[dt]=`${iT}-${oT}`;
+}else if(t==='extra'){
+const h=prompt("➕ Horas extras:",st.extra[dt]||"");
+if(h!==null){const n=parseFloat(h);if(n>0)st.extra[dt]=n;else delete st.extra[dt];}
+}
+
+document.getElementById("cellMenu").style.display="none";
+save();render();
+};
+
+function deleteDetail(p,dt,type){
+if(!confirm(`Apagar ${type} de ${dt}?`))return;
+const st=store(S.year,sec(),p);
+if(type==='Férias'){
+const idx=st.vacations.indexOf(dt);
+if(idx>-1)st.vacations.splice(idx,1);
+}else if(type==='Comentário'){
+delete st.comment[dt];
+}else if(type==='Saída Cedo'){
+delete st.early[dt];
+}else if(type==='Ponto'){
+delete st.hours[dt];
+}else if(type==='Horas Extras'){
+delete st.extra[dt];
+}
+save();render();
+}
+
+function render(){
+document.getElementById("selYear").value=S.year;
+document.getElementById("selView").value=S.view;
+document.getElementById("inpCity").value=city();
+
+updMun();
+renSec();
+renPpl();
+renMap();
+renSum();
+renDetails();
+renTotals();
+checkConflictAlert();
+}
+
+function checkConflictAlert(){
+const conflicts=checkConflicts();
+const alert=document.getElementById("conflictAlert");
+if(conflicts.length>0){
+document.getElementById("conflictMsg").textContent=`${conflicts.length} conflito(s) detectado(s): ${conflicts.map(c=>`${c.date} (${c.people.join(', ')})`).join('; ')}`;
+alert.style.display="block";
+}else{
+alert.style.display="none";
+}
+}
+
+function renTotals(){
+const ppl=S.view==="team"?people():[person()].filter(Boolean);
+let totalVac=0,totalEarly=0,totalExtra=0,totalComments=0;
+
+ppl.forEach(p=>{
+const st=store(S.year,sec(),p);
+totalVac+=bizDays(S.year,sec(),p);
+totalEarly+=Object.values(st.early||{}).reduce((a,b)=>a+b,0);
+totalExtra+=Object.values(st.extra||{}).reduce((a,b)=>a+b,0);
+totalComments+=Object.keys(st.comment||{}).length;
+});
+
+document.getElementById("totalVac").textContent=totalVac;
+document.getElementById("totalEarly").textContent=Math.round(totalEarly*10)/10;
+document.getElementById("totalExtra").textContent=Math.round(totalExtra*10)/10;
+document.getElementById("totalComments").textContent=totalComments;
+document.getElementById("totalHours").textContent=calcTotalHours();
+}
+
+function updMun(){
+const c=city().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const h=document.getElementById("cityHint");
+if(mDB[c]){
+h.innerHTML=`✅ <b>${mDB[c].name}</b> — ${mDB[c].mmdd}`;
+h.style.color="green";
+}else{
+h.textContent="Digite uma cidade";
+h.style.color="#999";
+}
+}
+
+function renSec(){
+const sel=document.getElementById("selSection");
+sel.innerHTML="";
+S.sections.forEach(s=>{
+const o=document.createElement("option");
+o.value=s;o.textContent=s;
+sel.appendChild(o);
+});
+sel.value=sec();
+}
+
+function renPpl(){
+const ppl=people();
+[document.getElementById("selManage"),document.getElementById("selPerson")].forEach(sel=>{
+sel.innerHTML='<option value="">(selecionar)</option>';
+ppl.forEach(n=>{
+const o=document.createElement("option");
+o.value=n;o.textContent=n;
+sel.appendChild(o);
+});
+sel.value=person();
+});
+document.getElementById("indWrap").style.display=S.view==="individual"?"block":"none";
+}
+
+function renMap(){
+const g=document.getElementById("monthsGrid");
+g.innerHTML="";
+const y=S.year,hol=holMap(y);
+const conflicts=checkConflicts();
+const conflictDates=new Set(conflicts.map(c=>c.date));
+
+for(let m=1;m<=12;m++){
+const c=document.createElement("div");
+c.className="monthCard";
+const ds=new Date(y,m,0).getDate();
+
+let html=`<div class="monthHead">
+<div class="monthTitle">${mPt[m-1]} ${y}</div>
+<div style="font-size:11px;color:#999">${sec()}</div>
+</div><div class="grid"><table><tr><th class="stickyName">Colaborador</th>`;
+
+for(let d=1;d<=ds;d++){
+const dt=iso(y,m,d),dow=new Date(y,m-1,d).getDay(),isW=dow===0||dow===6,isH=hol.has(dt);
+html+=`<th class="${isW?'weekendCol':''}">${d}<br><small style="font-size:9px">${dPt[dow]}</small>${isH?'<br>🎉':''}</th>`;
+}
+html+="</tr>";
+
+const ppl=S.view==="team"?people():[person()].filter(Boolean);
+ppl.forEach(p=>{
+const st=store(y,sec(),p),bz=bizDays(y,sec(),p);
+const appr=st.approved?st.approved.status==="approved"?`✅${st.approved.by}`:st.approved.status==="rejected"?`❌${st.approved.by}`:"":"Pendente";
+const overLimit=bz>22?'over':'';
+html+=`<tr><td class="stickyName ${overLimit}"><div class="nameMain">${p}</div><div class="nameSub" style="${bz>22?'color:red;font-weight:900':''}">${bz}/22 ${bz>22?'⚠️':''} | ${appr}</div></td>`;
+
+for(let d=1;d<=ds;d++){
+const dt=iso(y,m,d),dow=new Date(y,m-1,d).getDay();
+const isW=dow===0||dow===6,isV=st.vacations.includes(dt),isH=hol.has(dt);
+const hasCm=st.comment[dt],hasE=st.early[dt],hasH=st.hours[dt],hasEx=st.extra[dt];
+const isConflict=conflictDates.has(dt)&&isV;
+
+let cls=`cell ${isW?'weekendCol':''} ${isV?'vac':''} ${isH?'hol':''} ${isConflict?'conflict':''}`;
+let content='';
+
+if(isV)content+='<span class="marker">F</span>';
+if(hasCm)content+=`<span class="info">💬</span>`;
+if(hasE)content+=`<span class="info">🕒${hasE}h</span>`;
+if(hasH)content+=`<span class="info">⏱️${hasH}</span>`;
+if(hasEx)content+=`<span class="info">➕${hasEx}h</span>`;
+
+if(isConflict){
+content+=`<span class="warnIcon">⚠️</span>`;
+}
+
+const title=[isH?hol.get(dt):'',hasCm,hasE?`Saída:${hasE}h`:'',hasH,hasEx?`Extra:${hasEx}h`:'',isConflict?'⚠️ CONFLITO':''].filter(Boolean).join(' | ');
+
+html+=`<td class="${cls}" oncontextmenu="showMenu(event,'${p}','${dt}');return false" title="${title}">${content}</td>`;
+}
+html+="</tr>";
+});
+
+html+="</table></div>";
+c.innerHTML=html;
+g.appendChild(c);
+}
+}
+
+function renSum(){
+const ppl=people(),s=document.getElementById("quickSummary");
+if(ppl.length===0){s.innerHTML='<div>Adicione colaboradores</div>';return;}
+
+s.innerHTML=ppl.map(p=>{
+const d=bizDays(S.year,sec(),p);
+const st=store(S.year,sec(),p);
+const appr=st.approved?st.approved.status==="approved"?`✅`:st.approved.status==="rejected"?`❌`:"❓":"❓";
+const over=d>22?'over':'';
+return`<div class="summaryItem ${over}"><span style="font-weight:700">${p}</span><span style="font-size:12px;${d>22?'color:red;font-weight:900':''}">${d}/22 ${d>22?'⚠️':''} ${appr}</span></div>`;
+}).join("");
+}
+
+function renDetails(){
+const d=document.getElementById("detailsSummary");
+const ppl=S.view==="team"?people():[person()].filter(Boolean);
+if(ppl.length===0){d.innerHTML='<div style="text-align:center;color:#999">Selecione colaborador</div>';return;}
+
+let items=[];
+ppl.forEach(p=>{
+const st=store(S.year,sec(),p);
+
+st.vacations.forEach(dt=>items.push({p,dt,type:'Férias',icon:'📅',val:''}));
+Object.entries(st.comment||{}).forEach(([dt,v])=>items.push({p,dt,type:'Comentário',icon:'💬',val:v}));
+Object.entries(st.early||{}).forEach(([dt,v])=>items.push({p,dt,type:'Saída Cedo',icon:'🕒',val:`${v}h`}));
+Object.entries(st.hours||{}).forEach(([dt,v])=>items.push({p,dt,type:'Ponto',icon:'⏱️',val:v}));
+Object.entries(st.extra||{}).forEach(([dt,v])=>items.push({p,dt,type:'Horas Extras',icon:'➕',val:`${v}h`}));
+});
+
+items.sort((a,b)=>a.dt.localeCompare(b.dt));
+
+if(items.length===0){
+d.innerHTML='<div style="text-align:center;color:#999">Sem registos</div>';
+return;
+}
+
+d.innerHTML=items.map(it=>`
+<div class="detailItem">
+<div class="date">${it.icon} ${it.p} — ${it.dt}</div>
+<div class="type">${it.type}${it.val?' • '+it.val:''}</div>
+<button class="delBtn" onclick="deleteDetail('${it.p}','${it.dt}','${it.type}')">×</button>
+</div>
+`).join("");
+}
+
+function addSection(){
+const n=document.getElementById("inpNewSection").value.trim();
+if(n&&!S.sections.includes(n)){
+S.sections.push(n);S.currentSection=n;S.peopleBySection[n]=[];
+document.getElementById("inpNewSection").value="";
+save();render();
+}
+}
+function editSection(){
+const o=sec(),n=prompt("Novo nome:",o);
+if(!n||n===o)return;
+S.sections=S.sections.map(s=>s===o?n:s);
+S.currentSection=n;
+if(S.peopleBySection[o]){S.peopleBySection[n]=S.peopleBySection[o];delete S.peopleBySection[o];}
+save();render();
+}
+function deleteSection(){
+if(!confirm(`Excluir "${sec()}"?`))return;
+S.sections=S.sections.filter(s=>s!==sec());
+if(S.sections.length===0)S.sections=["Geral"];
+S.currentSection=S.sections[0];
+save();render();
+}
+
+function addPerson(){
+const n=document.getElementById("inpNewName").value.trim();
+if(!n)return;
+const ppl=people();
+if(ppl.includes(n)){alert("Já existe!");return;}
+ppl.push(n);
+S.peopleBySection[sec()]=ppl;
+if(!person())setPerson(n);
+document.getElementById("inpNewName").value="";
+save();render();
+}
+function editPerson(){
+const o=document.getElementById("selManage").value;
+if(!o)return;
+const n=prompt("Novo nome:",o);
+if(!n||n===o)return;
+const ppl=people();
+if(ppl.includes(n)){alert("Já existe!");return;}
+S.peopleBySection[sec()]=ppl.map(p=>p===o?n:p);
+if(person()===o)setPerson(n);
+save();render();
+}
+function deletePerson(){
+const p=document.getElementById("selManage").value;
+if(!p)return;
+if(!confirm(`Excluir "${p}"?`))return;
+S.peopleBySection[sec()]=people().filter(x=>x!==p);
+if(person()===p)setPerson(people()[0]||"");
+save();render();
+}
+
+function gerarMapaColaborador(){
+const p=person();
+if(!p){alert("⚠️ Selecione um colaborador na Vista Individual!");return;}
+const dados={nome:p,seccao:sec(),cidade:city(),ano:S.year,ferias:store(S.year,sec(),p).vacations};
+const dataStr=encodeURIComponent(JSON.stringify(dados));
+window.open(`colaborador.html?dados=${dataStr}`,"_blank");
+}
+
+document.getElementById("selYear").onchange=()=>{S.year=Number(document.getElementById("selYear").value);save();render();};
+document.getElementById("selSection").onchange=()=>{S.currentSection=document.getElementById("selSection").value;save();render();};
+document.getElementById("selView").onchange=()=>{S.view=document.getElementById("selView").value;save();render();};
+document.getElementById("selPerson").onchange=()=>{setPerson(document.getElementById("selPerson").value);save();render();};
+document.getElementById("inpCity").oninput=()=>{setCity(document.getElementById("inpCity").value);save();updMun();render();};
+
+setTimeout(()=>{render();},100);
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planeador de Férias 2026 - Sistema Profissional para Empresas</title>
+<meta name="description" content="Sistema profissional de gestão de férias. Poupe 10h/mês. 308 municípios incluídos. Apenas 149€.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;color:#333}
+.hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:80px 20px;text-align:center}
+.hero h1{font-size:48px;margin-bottom:20px;font-weight:900}
+.hero p{font-size:24px;margin-bottom:30px;opacity:.95}
+.hero .cta{display:inline-block;background:#ffd700;color:#333;padding:20px 50px;font-size:20px;font-weight:700;border-radius:50px;text-decoration:none;margin-top:20px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .3s}
+.hero .cta:hover{transform:scale(1.05)}
+.container{max-width:1200px;margin:0 auto;padding:60px 20px}
+.section{margin-bottom:80px}
+.section h2{font-size:36px;text-align:center;margin-bottom:40px;color:#667eea}
+.problem{background:#fff3cd;padding:40px;border-radius:20px;border-left:8px solid #f44336}
+.problem h3{color:#f44336;font-size:28px;margin-bottom:20px}
+.problem ul{list-style:none;font-size:18px}
+.problem li{padding:10px 0;padding-left:30px;position:relative}
+.problem li:before{content:"❌";position:absolute;left:0}
+.solution{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-top:40px}
+.feature{background:#fff;padding:30px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.1);text-align:center}
+.feature .icon{font-size:48px;margin-bottom:15px}
+.feature h3{font-size:22px;margin-bottom:15px;color:#667eea}
+.feature p{color:#666}
+.pricing{background:#f8f9fa;padding:60px 20px;text-align:center}
+.pricing h2{font-size:36px;margin-bottom:50px;color:#667eea}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;max-width:1000px;margin:0 auto}
+.plan{background:#fff;padding:40px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);position:relative;transition:transform .3s}
+.plan:hover{transform:translateY(-10px)}
+.plan.popular{border:4px solid #ffd700;transform:scale(1.05)}
+.plan.popular:before{content:"MAIS POPULAR";position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:#ffd700;color:#333;padding:5px 20px;border-radius:20px;font-weight:900;font-size:12px}
+.plan h3{font-size:24px;margin-bottom:20px;color:#667eea}
+.plan .price{font-size:48px;font-weight:900;color:#333;margin-bottom:10px}
+.plan .price span{font-size:20px;color:#666}
+.plan ul{list-style:none;margin:30px 0;text-align:left}
+.plan li{padding:10px 0;padding-left:30px;position:relative}
+.plan li:before{content:"✅";position:absolute;left:0}
+.plan .btn{display:inline-block;background:#667eea;color:#fff;padding:15px 40px;border-radius:50px;text-decoration:none;font-weight:700;margin-top:20px;transition:all .3s}
+.plan .btn:hover{background:#764ba2;transform:scale(1.05)}
+.guarantee{background:#e8f5e9;padding:40px;border-radius:20px;text-align:center;margin-top:60px}
+.guarantee h3{color:#4caf50;font-size:28px;margin-bottom:20px}
+.guarantee p{font-size:18px;color:#333}
+.testimonials{background:#fff;padding:60px 20px}
+.testimonial{background:#f8f9fa;padding:30px;border-radius:15px;margin-bottom:30px;border-left:5px solid #667eea}
+.testimonial p{font-style:italic;color:#555;margin-bottom:15px;font-size:16px}
+.testimonial .author{font-weight:700;color:#667eea}
+.demo{text-align:center;padding:60px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}
+.demo h2{font-size:36px;margin-bottom:30px}
+.demo video{max-width:800px;width:100%;border-radius:20px;box-shadow:0 10px 50px rgba(0,0,0,.3)}
+.faq{padding:60px 20px}
+.faq h2{text-align:center;font-size:36px;margin-bottom:40px;color:#667eea}
+.faq-item{background:#f8f9fa;padding:25px;margin-bottom:20px;border-radius:10px;border-left:4px solid #667eea}
+.faq-item h3{color:#667eea;margin-bottom:10px;font-size:20px}
+.faq-item p{color:#666}
+.cta-final{background:#ffd700;padding:80px 20px;text-align:center}
+.cta-final h2{font-size:42px;margin-bottom:20px;color:#333}
+.cta-final p{font-size:20px;margin-bottom:30px;color:#333}
+.cta-final .btn{display:inline-block;background:#667eea;color:#fff;padding:20px 60px;font-size:24px;font-weight:900;border-radius:50px;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.2);transition:all .3s}
+.cta-final .btn:hover{background:#764ba2;transform:scale(1.05)}
+.footer{background:#333;color:#fff;padding:40px 20px;text-align:center}
+.footer p{margin-bottom:10px}
+.footer a{color:#ffd700;text-decoration:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px;margin:40px 0;text-align:center}
+.stat{background:#fff;padding:30px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
+.stat .number{font-size:48px;font-weight:900;color:#667eea;margin-bottom:10px}
+.stat .label{color:#666;font-size:16px}
+@media(max-width:768px){
+.hero h1{font-size:32px}
+.hero p{font-size:18px}
+.plan.popular{transform:scale(1)}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<h1>📊 Planeador de Férias 2026</h1>
+<p>Sistema profissional para empresas e particulares</p>
+<p style="font-size:28px;font-weight:900;margin:20px 0">Apenas 15€/ano - Colaboradores Ilimitados!</p>
+<p style="font-size:18px;opacity:.9">308 municípios • Alertas automáticos • PDF profissional</p>
+<a href="#precos" class="cta">COMEÇAR AGORA →</a>
+</div>
+
+<div class="container">
+<div class="section">
+<h2>😫 Cansado de Perder Tempo?</h2>
+<div class="problem">
+<h3>Se gere férias manualmente, conhece estes problemas:</h3>
+<ul>
+<li>Horas perdidas em Excel e emails</li>
+<li>Conflitos (2 pessoas no mesmo dia)</li>
+<li>Cálculo manual de dias úteis</li>
+<li>Feriados municipais errados</li>
+<li>Aprovações por email/papel</li>
+<li>Impossível exportar relatórios</li>
+</ul>
+</div>
+</div>
+
+<div class="stats">
+<div class="stat">
+<div class="number">15€</div>
+<div class="label">Por ano completo</div>
+</div>
+<div class="stat">
+<div class="number">∞</div>
+<div class="label">Colaboradores ilimitados</div>
+</div>
+<div class="stat">
+<div class="number">308</div>
+<div class="label">Municípios incluídos</div>
+</div>
+<div class="stat">
+<div class="number">1,25€</div>
+<div class="label">Por mês</div>
+</div>
+</div>
+
+<div class="section">
+<h2>✅ A Solução Profissional</h2>
+<div class="solution">
+<div class="feature">
+<div class="icon">📅</div>
+<h3>Calendário Inteligente</h3>
+<p>Todos os feriados nacionais e municipais incluídos. Cálculo automático de dias úteis.</p>
+</div>
+<div class="feature">
+<div class="icon">⚠️</div>
+<h3>Alertas de Conflito</h3>
+<p>Aviso automático quando 2+ pessoas marcam o mesmo dia. Zero surpresas!</p>
+</div>
+<div class="feature">
+<div class="icon">📊</div>
+<h3>Totais Automáticos</h3>
+<p>Dias férias, horas extras, saídas cedo, comentários. Tudo calculado automaticamente.</p>
+</div>
+<div class="feature">
+<div class="icon">✅</div>
+<h3>Sistema Aprovação</h3>
+<p>Aprove ou rejeite férias digitalmente. Registo de quem aprovou e quando.</p>
+</div>
+<div class="feature">
+<div class="icon">🖨️</div>
+<h3>Exportação PDF</h3>
+<p>Relatórios profissionais em 1 clique. Perfeito para A4.</p>
+</div>
+<div class="feature">
+<div class="icon">🔒</div>
+<h3>100% Local</h3>
+<p>Dados guardados no seu computador. Zero cloud, zero mensalidades.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="pricing" id="precos">
+<h2>💰 Um Preço Simples Para Todos</h2>
+<p style="text-align:center;font-size:20px;color:#666;margin-bottom:40px">Empresas, Particulares, Escolas - Todos pagam o mesmo!</p>
+<div class="plans" style="max-width:500px">
+<div class="plan popular" style="transform:none">
+<h3>Plano Anual Universal</h3>
+<div class="price">15<span>€/ano</span></div>
+<p style="color:#666;font-size:18px;margin:20px 0">🎉 Apenas 1,25€ por mês!</p>
+<ul>
+<li>✅ Colaboradores ilimitados</li>
+<li>✅ 308 municípios incluídos</li>
+<li>✅ Alertas de conflito</li>
+<li>✅ Totais automáticos</li>
+<li>✅ Exportação PDF profissional</li>
+<li>✅ Sistema de aprovação</li>
+<li>✅ Múltiplas secções</li>
+<li>✅ Suporte por email</li>
+<li>✅ Atualizações incluídas</li>
+<li>✅ Uso em vários computadores</li>
+</ul>
+<a href="#contacto" class="btn" style="background:#ffd700;color:#333;font-size:22px;padding:20px 50px">COMPRAR AGORA - 15€</a>
+<p style="margin-top:20px;color:#666;font-size:14px">💳 Pagamento anual por MBWay ou Transferência</p>
+</div>
+</div>
+
+<div class="guarantee">
+<h3>🛡️ Garantia 100% Satisfação</h3>
+<p><strong>30 dias de garantia total.</strong> Se não poupar tempo, devolvemos 100% do seu dinheiro. Sem perguntas.</p>
+</div>
+</div>
+
+<div class="container testimonials">
+<h2 style="text-align:center;font-size:36px;margin-bottom:40px;color:#667eea">💬 O Que Dizem os Clientes</h2>
+<div class="testimonial">
+<p>"Antes gastava 2 dias por mês só a gerir férias. Agora leva-me 2 horas. Incrível!"</p>
+<div class="author">— Ana Silva, Gestora RH, Porto</div>
+</div>
+<div class="testimonial">
+<p>"Finalmente um sistema que tem os feriados municipais TODOS. Vale cada cêntimo."</p>
+<div class="author">— João Costa, Contabilista, Lisboa</div>
+</div>
+<div class="testimonial">
+<p>"O alerta de conflitos sozinho já vale o investimento. Já evitou 3 problemas este mês!"</p>
+<div class="author">— Maria Santos, Diretora RH, Braga</div>
+</div>
+</div>
+
+<div class="container faq">
+<h2>❓ Perguntas Frequentes</h2>
+<div class="faq-item">
+<h3>Como funciona o pagamento?</h3>
+<p>Pagamento anual de 15€ por MBWay ou Transferência Bancária. Após pagamento, recebe acesso imediato por email.</p>
+</div>
+<div class="faq-item">
+<h3>Preciso renovar todos os anos?</h3>
+<p>Sim, é uma subscrição anual de 15€. Mas pode cancelar a qualquer momento - sem contratos!</p>
+</div>
+<div class="faq-item">
+<h3>Há limites de colaboradores?</h3>
+<p>Não! Com 15€/ano tem acesso ILIMITADO. 10 ou 1000 colaboradores - o preço é o mesmo!</p>
+</div>
+<div class="faq-item">
+<h3>Posso usar em vários computadores?</h3>
+<p>Sim! Pode usar em quantos computadores quiser dentro da sua empresa.</p>
+</div>
+<div class="faq-item">
+<h3>E se precisar de ajuda?</h3>
+<p>Suporte incluído por email/WhatsApp. Resposta em menos de 24h (dias úteis).</p>
+</div>
+<div class="faq-item">
+<h3>Posso pedir funcionalidades extra?</h3>
+<p>Claro! Personalizações disponíveis (logo, cores, funcionalidades). Preço sob consulta.</p>
+</div>
+</div>
+
+<div class="cta-final" id="contacto">
+<h2>🚀 Pronto Para Começar?</h2>
+<p>Junte-se a centenas de empresas e particulares que já automatizaram a gestão de férias</p>
+<p style="font-size:48px;font-weight:900;margin:30px 0;color:#333">15€/ano</p>
+<p style="font-size:18px;margin-bottom:10px;color:#333">🎉 Colaboradores ilimitados • 308 municípios • Suporte incluído</p>
+<p style="font-size:16px;margin-bottom:40px;color:#666">💰 Menos de 5 cêntimos por dia!</p>
+
+<div style="background:#fff;padding:40px;border-radius:20px;max-width:600px;margin:0 auto;text-align:left">
+<h3 style="color:#667eea;text-align:center;margin-bottom:30px">📧 Entre em Contacto</h3>
+<p style="margin-bottom:15px;color:#333"><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection#5c2f392939313d35301c39243d312c3039723f3331" style="color:#667eea"><span class="__cf_email__" data-cfemail="9deef8e8f8f0fcf4f1ddf8e5fcf0edf1f8b3fef2f0">[email&#160;protected]</span></a></p>
+<p style="margin-bottom:15px;color:#333"><strong>Telefone:</strong> <a href="tel:+351900000000" style="color:#667eea">+351 900 000 000</a></p>
+<p style="margin-bottom:15px;color:#333"><strong>WhatsApp:</strong> <a href="https://wa.me/351900000000" style="color:#667eea" target="_blank">+351 900 000 000</a></p>
+<p style="color:#666;font-size:14px;margin-top:30px;text-align:center">💳 Pagamento por transferência bancária ou MBWay</p>
+</div>
+</div>
+
+<div class="footer">
+<p><strong>Planeador de Férias 2026</strong> - Sistema Profissional para Empresas Portuguesas<
